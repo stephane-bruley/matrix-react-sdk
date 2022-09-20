@@ -222,7 +222,7 @@ const NewRoomIntro = () => {
     return <li className="mx_NewRoomIntro">
         { !hasExpectedEncryptionSettings(cli, room) && (
             <EventTileBubble
-                className="mx_cryptoEvent mx_cryptoEvent_icon_warning"
+                className="mx_cryptoEvent mx_cryptoEvent_icon_warning no_bamz"
                 title={_t("End-to-end encryption isn't enabled")}
                 subtitle={subtitle}
             />

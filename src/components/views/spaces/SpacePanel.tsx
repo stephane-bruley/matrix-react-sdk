@@ -232,7 +232,7 @@ const CreateSpaceButton = ({
     >
         <SpaceButton
             data-test-id='create-space-button'
-            className={classNames("mx_SpaceButton_new", {
+            className={classNames("mx_SpaceButton_new", "no_bamz", {
                 mx_SpaceButton_newCancel: menuDisplayed,
             })}
             label={menuDisplayed ? _t("Cancel") : _t("Create a space")}

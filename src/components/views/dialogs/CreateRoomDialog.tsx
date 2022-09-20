@@ -292,9 +292,11 @@ export default class CreateRoomDialog extends React.Component<IProps, IState> {
                 <LabelledToggleSwitch
                     label={_t("Enable end-to-end encryption")}
                     onChange={this.onEncryptedChange}
-                    value={this.state.isEncrypted}
+                    value={false}
+                    //value={this.state.isEncrypted}
                     className='mx_CreateRoomDialog_e2eSwitch' // for end-to-end tests
-                    disabled={!this.state.canChangeEncryption}
+                    disabled={true}
+                    //disabled={!this.state.canChangeEncryption}
                 />
                 <p>{ microcopy }</p>
             </React.Fragment>;
@@ -358,7 +360,7 @@ export default class CreateRoomDialog extends React.Component<IProps, IState> {
                         { publicPrivateLabel }
                         { e2eeSection }
                         { aliasField }
-                        <details onToggle={this.onDetailsToggled} className="mx_CreateRoomDialog_details">
+                        <details onToggle={this.onDetailsToggled} className="mx_CreateRoomDialog_details no_bamz">
                             <summary className="mx_CreateRoomDialog_details_summary">
                                 { this.state.detailsOpen ? _t('Hide advanced') : _t('Show advanced') }
                             </summary>

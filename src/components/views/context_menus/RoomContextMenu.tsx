@@ -77,7 +77,7 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
         };
 
         leaveOption = <IconizedContextMenuOption
-            iconClassName="mx_RoomTile_iconSignOut"
+            iconClassName="mx_RoomTile_iconSignOut no_bamz"
             label={_t("Forget")}
             className="mx_IconizedContextMenu_option_red"
             onClick={onForgetRoomClick}
@@ -99,7 +99,7 @@ const RoomContextMenu = ({ room, onFinished, ...props }: IProps) => {
         leaveOption = <IconizedContextMenuOption
             onClick={onLeaveRoomClick}
             label={_t("Leave")}
-            className="mx_IconizedContextMenu_option_red"
+            className="mx_IconizedContextMenu_option_red no_bamz"
             iconClassName="mx_RoomTile_iconSignOut"
         />;
     }

@@ -45,6 +45,7 @@ export default class HostSignupAction extends React.PureComponent<IProps, IState
         return (
             <IconizedContextMenuOptionList>
                 <IconizedContextMenuOption
+                    className="no_bamz"
                     iconClassName="mx_UserMenu_iconHosting"
                     label={_t(
                         "Upgrade to %(hostSignupBrand)s",

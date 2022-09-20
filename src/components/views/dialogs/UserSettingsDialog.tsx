@@ -136,13 +136,13 @@ export default class UserSettingsDialog extends React.Component<IProps, IState> 
             ));
         }
 
-        tabs.push(new Tab(
-            UserTab.Security,
-            _td("Security & Privacy"),
-            "mx_UserSettingsDialog_securityIcon",
-            <SecurityUserSettingsTab closeSettingsFn={this.props.onFinished} />,
-            "UserSettingsSecurityPrivacy",
-        ));
+        // tabs.push(new Tab(
+        //     UserTab.Security,
+        //     _td("Security & Privacy"),
+        //     "mx_UserSettingsDialog_securityIcon",
+        //     <SecurityUserSettingsTab closeSettingsFn={this.props.onFinished} />,
+        //     "UserSettingsSecurityPrivacy",
+        // ));
         if (this.state.newSessionManagerEnabled) {
             tabs.push(new Tab(
                 UserTab.SessionManager,
@@ -174,13 +174,13 @@ export default class UserSettingsDialog extends React.Component<IProps, IState> 
                 "UserSettingMjolnir",
             ));
         }
-        tabs.push(new Tab(
-            UserTab.Help,
-            _td("Help & About"),
-            "mx_UserSettingsDialog_helpIcon",
-            <HelpUserSettingsTab closeSettingsFn={() => this.props.onFinished(true)} />,
-            "UserSettingsHelpAbout",
-        ));
+        // tabs.push(new Tab(
+        //     UserTab.Help,
+        //     _td("Help & About"),
+        //     "mx_UserSettingsDialog_helpIcon",
+        //     <HelpUserSettingsTab closeSettingsFn={() => this.props.onFinished(true)} />,
+        //     "UserSettingsHelpAbout",
+        // ));
 
         return tabs;
     }

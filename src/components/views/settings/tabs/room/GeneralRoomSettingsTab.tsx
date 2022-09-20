@@ -71,8 +71,8 @@ export default class GeneralRoomSettingsTab extends React.Component<IProps, ISta
         let leaveSection;
         if (room.getMyMembership() === "join") {
             leaveSection = <>
-                <span className='mx_SettingsTab_subheading'>{ _t("Leave room") }</span>
-                <div className='mx_SettingsTab_section'>
+                <span className='mx_SettingsTab_subheading no_bamz'>{ _t("Leave room") }</span>
+                <div className='mx_SettingsTab_section no_bamz'>
                     <AccessibleButton kind='danger' onClick={this.onLeaveClick}>
                         { _t('Leave room') }
                     </AccessibleButton>

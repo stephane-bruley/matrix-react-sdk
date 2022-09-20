@@ -103,7 +103,7 @@ const SpaceContextMenu = ({ space, hideHeader, onFinished, ...props }: IProps) =
             <IconizedContextMenuOption
                 data-test-id='leave-option'
                 iconClassName="mx_SpacePanel_iconLeave"
-                className="mx_IconizedContextMenu_option_red"
+                className="mx_IconizedContextMenu_option_red no_bamz"
                 label={_t("Leave space")}
                 onClick={onLeaveClick}
             />

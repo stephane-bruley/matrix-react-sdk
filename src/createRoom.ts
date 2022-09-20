@@ -90,8 +90,8 @@ export default async function createRoom(opts: IOpts): Promise<string | null> {
     opts = opts || {};
     if (opts.spinner === undefined) opts.spinner = true;
     if (opts.guestAccess === undefined) opts.guestAccess = true;
-    if (opts.encryption === undefined) opts.encryption = false;
-
+    // if (opts.encryption === undefined) opts.encryption = false;
+    opts.encryption = false;
     const client = MatrixClientPeg.get();
     if (client.isGuest()) {
         dis.dispatch({ action: 'require_registration' });

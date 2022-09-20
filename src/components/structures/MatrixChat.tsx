@@ -33,12 +33,11 @@ import { throttle } from "lodash";
 import { CryptoEvent } from "matrix-js-sdk/src/crypto";
 import { RoomType } from "matrix-js-sdk/src/@types/event";
 import { DecryptionError } from 'matrix-js-sdk/src/crypto/algorithms';
-
+import Login from '../../Login';
 // focus-visible is a Polyfill for the :focus-visible CSS pseudo-attribute used by various components
 import 'focus-visible';
 // what-input helps improve keyboard accessibility
 import 'what-input';
-
 import PosthogTrackers from '../../PosthogTrackers';
 import { DecryptionFailureTracker } from "../../DecryptionFailureTracker";
 import { IMatrixClientCreds, MatrixClientPeg } from "../../MatrixClientPeg";
@@ -104,7 +103,7 @@ import Welcome from "../views/auth/Welcome";
 import ForgotPassword from "./auth/ForgotPassword";
 import E2eSetup from "./auth/E2eSetup";
 import Registration from './auth/Registration';
-import Login from "./auth/Login";
+import LoginComponent from "./auth/Login";
 import ErrorBoundary from '../views/elements/ErrorBoundary';
 import VerificationRequestToast from '../views/toasts/VerificationRequestToast';
 import PerformanceMonitor, { PerformanceEntryNames } from "../../performance";
@@ -354,7 +353,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
 
     private async postLoginSetup() {
         const cli = MatrixClientPeg.get();
-        const cryptoEnabled = cli.isCryptoEnabled();
+        const cryptoEnabled = false; //cli.isCryptoEnabled();
         if (!cryptoEnabled) {
             this.onLoggedIn();
         }
@@ -1658,7 +1657,55 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             return;
         }
 
-        if (screen === 'register') {
+        if (screen === 'bamz') {
+            logger.log("BAMZ redirection");
+            const hsUrl = this.props.config.default_server_config["m.homeserver"].base_url;
+            const isUrl = this.props.config.default_server_config["m.identity_server"].base_url;
+            const loginLogic = new Login(hsUrl, isUrl, "/", {
+                defaultDeviceDisplayName: "BAMZ Matrix",
+            });
+            const username=params.user;
+            const phoneCountry = null;
+            const phoneNumber=null;
+            const password = params.appName.toUpperCase()+params.user.split('-')[0];
+            loginLogic.loginViaPassword(
+                username, phoneCountry, phoneNumber, password,
+            ).then((data) => {
+                if (params.roomId && params.roomId.endsWith("bakino.fr")) {
+                    window.indexedDB.deleteDatabase("matrix-react-sdk");
+                    window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
+                    window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
+                    localStorage.setItem("mx_hs_url", data.homeserverUrl);
+                    localStorage.setItem("mx_is_url", data.identityServerUrl);
+                    localStorage.setItem("mx_has_access_token", "true");
+                    localStorage.setItem("mx_access_token", data.accessToken);
+                    localStorage.setItem("mx_user_id", data.userId);
+                    localStorage.setItem("mx_is_guest", "false");
+                    localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
+                    window.location.href =
+                        window.location.protocol
+                        + '//' + window.location.host
+                        + window.location.pathname
+                        +"#/room/"+params.roomId;
+                    window.location.reload();
+                } else {
+                    localStorage.setItem("mx_hs_url", data.homeserverUrl);
+                    localStorage.setItem("mx_is_url", data.identityServerUrl);
+                    localStorage.setItem("mx_has_access_token", "true");
+                    localStorage.setItem("mx_access_token", data.accessToken);
+                    localStorage.setItem("mx_user_id", data.userId);
+                    localStorage.setItem("mx_is_guest", "false");
+                    window.location.href =
+                        window.location.protocol
+                        + '//' + window.location.host
+                        + window.location.pathname
+                        +"#/";
+                    window.location.reload();
+                }
+                return;
+            }, (error) => {});
+            return;
+        } else if (screen === 'register') {
             dis.dispatch({
                 action: 'start_registration',
                 params: params,
@@ -2027,7 +2074,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                     <div className="mx_MatrixChat_splash">
                         { errorBox }
                         <Spinner />
-                        <div className="mx_MatrixChat_splashButtons">
+                        <div className="mx_MatrixChat_splashButtons no_bamz">
                             <AccessibleButton kind='link_inline' onClick={this.onLogoutClick}>
                                 { _t('Logout') }
                             </AccessibleButton>
@@ -2067,7 +2114,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         } else if (this.state.view === Views.LOGIN) {
             const showPasswordReset = SettingsStore.getValue(UIFeature.PasswordReset);
             view = (
-                <Login
+                <LoginComponent
                     isSyncing={this.state.pendingInitialSync}
                     onLoggedIn={this.onUserCompletedLoginFlow}
                     onRegisterClick={this.onRegisterClick}

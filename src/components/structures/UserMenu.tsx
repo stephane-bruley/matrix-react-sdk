@@ -315,6 +315,7 @@ export default class UserMenu extends React.Component<IProps, IState> {
         let feedbackButton;
         if (SettingsStore.getValue(UIFeature.Feedback)) {
             feedbackButton = <IconizedContextMenuOption
+                className="no_bamz"
                 iconClassName="mx_UserMenu_iconMessage"
                 label={_t("Feedback")}
                 onClick={this.onProvideFeedback}
@@ -330,6 +331,7 @@ export default class UserMenu extends React.Component<IProps, IState> {
                     onClick={(e) => this.onSettingsOpen(e, UserTab.Notifications)}
                 />
                 <IconizedContextMenuOption
+                    className="no_bamz"
                     iconClassName="mx_UserMenu_iconLock"
                     label={_t("Security & Privacy")}
                     onClick={(e) => this.onSettingsOpen(e, UserTab.Security)}
@@ -341,7 +343,7 @@ export default class UserMenu extends React.Component<IProps, IState> {
                 />
                 { feedbackButton }
                 <IconizedContextMenuOption
-                    className="mx_IconizedContextMenu_option_red"
+                    className="mx_IconizedContextMenu_option_red no_bamz"
                     iconClassName="mx_UserMenu_iconSignOut"
                     label={_t("Sign out")}
                     onClick={this.onSignOutClick}
