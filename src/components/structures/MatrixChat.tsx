@@ -1671,24 +1671,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             loginLogic.loginViaPassword(
                 username, phoneCountry, phoneNumber, password,
             ).then((data) => {
-                if (params.roomId && params.roomId.endsWith("bakino.fr")) {
-                    window.indexedDB.deleteDatabase("matrix-react-sdk");
-                    window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
-                    window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
-                    localStorage.setItem("mx_hs_url", data.homeserverUrl);
-                    localStorage.setItem("mx_is_url", data.identityServerUrl);
-                    localStorage.setItem("mx_has_access_token", "true");
-                    localStorage.setItem("mx_access_token", data.accessToken);
-                    localStorage.setItem("mx_user_id", data.userId);
-                    localStorage.setItem("mx_is_guest", "false");
-                    localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-                    window.location.href =
-                        window.location.protocol
-                        + '//' + window.location.host
-                        + window.location.pathname
-                        +"#/room/"+params.roomId;
-                    window.location.reload();
-                } else {
+                const previous = localStorage.getItem("mx_bamz_user");
+                if (previous && previous === params.user) {
                     localStorage.setItem("mx_hs_url", data.homeserverUrl);
                     localStorage.setItem("mx_is_url", data.identityServerUrl);
                     localStorage.setItem("mx_has_access_token", "true");
@@ -1701,7 +1685,63 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                         + window.location.pathname
                         +"#/";
                     window.location.reload();
+                } else {
+                    localStorage.setItem("mx_bamz_user", params.user);
+                    window.indexedDB.deleteDatabase("matrix-react-sdk");
+                    window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
+                    window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
+                    localStorage.setItem("mx_hs_url", data.homeserverUrl);
+                    localStorage.setItem("mx_is_url", data.identityServerUrl);
+                    localStorage.setItem("mx_has_access_token", "true");
+                    localStorage.setItem("mx_access_token", data.accessToken);
+                    localStorage.setItem("mx_user_id", data.userId);
+                    localStorage.setItem("mx_is_guest", "false");
+                    if (params.roomId) {
+                        localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
+                        window.location.href =
+                            window.location.protocol
+                            + '//' + window.location.host
+                            + window.location.pathname
+                            +"#/room/"+params.roomId;
+                    } else {
+                        window.location.href =
+                        window.location.protocol
+                        + '//' + window.location.host
+                        + window.location.pathname
+                        +"#/";
+                    }
                 }
+                // if (params.roomId && params.roomId.endsWith("bakino.fr")) {
+                //     window.indexedDB.deleteDatabase("matrix-react-sdk");
+                //     window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
+                //     window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
+                //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
+                //     localStorage.setItem("mx_is_url", data.identityServerUrl);
+                //     localStorage.setItem("mx_has_access_token", "true");
+                //     localStorage.setItem("mx_access_token", data.accessToken);
+                //     localStorage.setItem("mx_user_id", data.userId);
+                //     localStorage.setItem("mx_is_guest", "false");
+                //     localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
+                //     window.location.href =
+                //         window.location.protocol
+                //         + '//' + window.location.host
+                //         + window.location.pathname
+                //         +"#/room/"+params.roomId;
+                //     window.location.reload();
+                // } else {
+                //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
+                //     localStorage.setItem("mx_is_url", data.identityServerUrl);
+                //     localStorage.setItem("mx_has_access_token", "true");
+                //     localStorage.setItem("mx_access_token", data.accessToken);
+                //     localStorage.setItem("mx_user_id", data.userId);
+                //     localStorage.setItem("mx_is_guest", "false");
+                //     window.location.href =
+                //         window.location.protocol
+                //         + '//' + window.location.host
+                //         + window.location.pathname
+                //         +"#/";
+                //     window.location.reload();
+                // }
                 return;
             }, (error) => {});
             return;
