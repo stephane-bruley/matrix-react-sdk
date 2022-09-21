@@ -1672,6 +1672,10 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 username, phoneCountry, phoneNumber, password,
             ).then((data) => {
                 const previous = localStorage.getItem("mx_bamz_user");
+                console.log("BAMZ previous: "+JSON.stringify(previous));
+                console.log("BAMZ params.user: "+params.user);
+                logger.log("BAMZ previous: "+JSON.stringify(previous));
+                logger.log("BAMZ params.user: "+params.user);
                 if (previous && previous === params.user) {
                     localStorage.setItem("mx_hs_url", data.homeserverUrl);
                     localStorage.setItem("mx_is_url", data.identityServerUrl);
@@ -1703,12 +1707,14 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                             + '//' + window.location.host
                             + window.location.pathname
                             +"#/room/"+params.roomId;
+                        window.location.reload();
                     } else {
                         window.location.href =
                         window.location.protocol
                         + '//' + window.location.host
                         + window.location.pathname
                         +"#/";
+                        window.location.reload();
                     }
                 }
                 // if (params.roomId && params.roomId.endsWith("bakino.fr")) {
