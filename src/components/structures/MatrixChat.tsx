@@ -1677,6 +1677,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 logger.log("BAMZ previous: "+JSON.stringify(previous));
                 logger.log("BAMZ params.user: "+params.user);
                 if (previous && previous === params.user) {
+                    console.log("BAMZ same session");
+                    logger.log("BAMZ same session");
                     localStorage.setItem("mx_hs_url", data.homeserverUrl);
                     localStorage.setItem("mx_is_url", data.identityServerUrl);
                     localStorage.setItem("mx_has_access_token", "true");
@@ -1690,6 +1692,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                         +"#/";
                     //window.location.reload();
                 } else {
+                    console.log("BAMZ new session");
+                    logger.log("BAMZ new session");
                     localStorage.setItem("mx_bamz_user", params.user);
                     window.indexedDB.deleteDatabase("matrix-react-sdk");
                     window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
@@ -1707,14 +1711,14 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                             + '//' + window.location.host
                             + window.location.pathname
                             +"#/room/"+params.roomId;
-                        //window.location.reload();
+                        window.location.reload();
                     } else {
                         window.location.href =
                         window.location.protocol
                         + '//' + window.location.host
                         + window.location.pathname
                         +"#/";
-                        //window.location.reload();
+                        window.location.reload();
                     }
                 }
                 // if (params.roomId && params.roomId.endsWith("bakino.fr")) {
