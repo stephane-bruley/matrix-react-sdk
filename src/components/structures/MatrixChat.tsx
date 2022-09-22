@@ -1690,7 +1690,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                         + '//' + window.location.host
                         + window.location.pathname
                         +"#/";
-                    //window.location.reload();
+                    window.location.reload();
                 } else {
                     console.log("BAMZ new session");
                     logger.log("BAMZ new session");
