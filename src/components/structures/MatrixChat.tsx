@@ -27,7 +27,7 @@ import { ISyncStateData, SyncState } from 'matrix-js-sdk/src/sync';
 import { MatrixError } from 'matrix-js-sdk/src/http-api';
 import { InvalidStoreError } from "matrix-js-sdk/src/errors";
 import { MatrixEvent } from "matrix-js-sdk/src/models/event";
-import { defer, IDeferred, QueryDict } from "matrix-js-sdk/src/utils";
+import { defer, IDeferred, QueryDict, decodeParams } from "matrix-js-sdk/src/utils";
 import { logger } from "matrix-js-sdk/src/logger";
 import { throttle } from "lodash";
 import { CryptoEvent } from "matrix-js-sdk/src/crypto";
@@ -136,6 +136,7 @@ import { TimelineRenderingType } from "../../contexts/RoomContext";
 import { UseCaseSelection } from '../views/elements/UseCaseSelection';
 import { ValidatedServerConfig } from '../../utils/ValidatedServerConfig';
 import { isLocalRoom } from '../../utils/localRoom/isLocalRoom';
+import AbstractLocalStorageSettingsHandler from '../../settings/handlers/AbstractLocalStorageSettingsHandler';
 
 // legacy export
 export { default as Views } from "../../Views";
@@ -311,13 +312,85 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         this.subTitleStatus = '';
 
 
-        console.log("BAMZZZ")
-        logger.log("BAMZZZ")
-        console.log(this)
-        console.log(this.props)
-        logger.log(this)
-        logger.log(this.props)
+        console.log(window.location);
+        console.log(window.location.href);
+        console.log(window.location.hash)
+        if (window.location.href.indexOf("#/bamz?user") > 0) {
+            console.log("BAMZZZ");
+            const fragment = window.location.hash.substring(1);
+            const hashparts = fragment.split('?');
+            const result = {
+                location: decodeURIComponent(hashparts[0]),
+                params: null,
+            };
+            if (hashparts.length > 1) {
+                result.params = decodeParams(hashparts[1]);
+            }
+            const hsUrl = this.props.config.default_server_config["m.homeserver"].base_url;
+            const isUrl = this.props.config.default_server_config["m.identity_server"].base_url;
+            const loginLogic = new Login(hsUrl, isUrl, "/", {
+                defaultDeviceDisplayName: "BAMZ Matrix",
+            });
+            const username=result.params.user;
+            const phoneCountry = null;
+            const phoneNumber=null;
+            const password = result.params.appName.toUpperCase()+result.params.user.split('-')[0];
+            loginLogic.loginViaPassword(
+                username, phoneCountry, phoneNumber, password,
+            ).then(async (data) => {
+                const previous = localStorage.getItem("mx_bamz_user");
+                console.log("BAMZ previous: "+JSON.stringify(previous));
+                console.log("BAMZ params.user: "+result.params.user);
+                logger.log("BAMZ previous: "+JSON.stringify(previous));
+                logger.log("BAMZ params.user: "+result.params.user);
+                if (previous && previous === result.params.user) {
+                    console.log("BAMZ same session");
+                    logger.log("BAMZ same session");
+                    // this.showScreen("home");
+                    //await Lifecycle.getStoredSessionVars();
+                    await this.loadSession();
+                    this.viewLastRoom();
+                } else {
+                    console.log("BAMZ new session");
+                    logger.log("BAMZ new session");
+                    localStorage.removeItem("mx_bamz_user");
+                    // LOGOUT previous user
+                    if (window.localStorage) {
+                        window.localStorage.clear();
+                        AbstractLocalStorageSettingsHandler.clear();
+                        try {
+                            await StorageManager.idbDelete("account", "mx_access_token");
+                        } catch (e) {
+                            logger.error("idbDelete failed for account:mx_access_token", e);
+                        }
+                    }
 
+                    //LOGIN new user
+
+                    const credentials={
+                        userId: data.userId,
+                        deviceId: data.deviceId,
+                        accessToken: data.accessToken,
+                        homeserverUrl: data.homeserverUrl,
+                        identityServerUrl: data.identityServerUrl,
+                        guest: false,
+                    };
+                    await Lifecycle.setLoggedIn(credentials);
+                    localStorage.setItem("mx_bamz_user", result.params.user);
+
+                    if (result.params.roomId) {
+                        localStorage.setItem("mx_last_room_id", result.params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
+                        this.viewLastRoom();
+                    } else {
+                        this.showScreen("home");
+                    }
+                }
+                return;
+            }, (error) => {});
+            return;
+
+            return;
+        }
         // the first thing to do is to try the token params in the query-string
         // if the session isn't soft logged out (ie: is a clean session being logged in)
         if (!Lifecycle.isSoftLogout()) {
@@ -1665,105 +1738,106 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             return;
         }
 
-        if (screen === 'bamz') {
-            logger.log("BAMZ redirection");
-            const hsUrl = this.props.config.default_server_config["m.homeserver"].base_url;
-            const isUrl = this.props.config.default_server_config["m.identity_server"].base_url;
-            const loginLogic = new Login(hsUrl, isUrl, "/", {
-                defaultDeviceDisplayName: "BAMZ Matrix",
-            });
-            const username=params.user;
-            const phoneCountry = null;
-            const phoneNumber=null;
-            const password = params.appName.toUpperCase()+params.user.split('-')[0];
-            loginLogic.loginViaPassword(
-                username, phoneCountry, phoneNumber, password,
-            ).then((data) => {
-                const previous = localStorage.getItem("mx_bamz_user");
-                console.log("BAMZ previous: "+JSON.stringify(previous));
-                console.log("BAMZ params.user: "+params.user);
-                logger.log("BAMZ previous: "+JSON.stringify(previous));
-                logger.log("BAMZ params.user: "+params.user);
-                if (previous && previous === params.user) {
-                    console.log("BAMZ same session");
-                    logger.log("BAMZ same session");
-                    localStorage.setItem("mx_hs_url", data.homeserverUrl);
-                    localStorage.setItem("mx_is_url", data.identityServerUrl);
-                    localStorage.setItem("mx_has_access_token", "true");
-                    localStorage.setItem("mx_access_token", data.accessToken);
-                    localStorage.setItem("mx_user_id", data.userId);
-                    localStorage.setItem("mx_is_guest", "false");
-                    window.location.href =
-                        window.location.protocol
-                        + '//' + window.location.host
-                        + window.location.pathname
-                        +"#/";
-                    window.location.reload();
-                } else {
-                    console.log("BAMZ new session");
-                    logger.log("BAMZ new session");
-                    localStorage.setItem("mx_bamz_user", params.user);
-                    window.indexedDB.deleteDatabase("matrix-react-sdk");
-                    window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
-                    window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
-                    localStorage.setItem("mx_hs_url", data.homeserverUrl);
-                    localStorage.setItem("mx_is_url", data.identityServerUrl);
-                    localStorage.setItem("mx_has_access_token", "true");
-                    localStorage.setItem("mx_access_token", data.accessToken);
-                    localStorage.setItem("mx_user_id", data.userId);
-                    localStorage.setItem("mx_is_guest", "false");
-                    if (params.roomId) {
-                        localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-                        window.location.href =
-                            window.location.protocol
-                            + '//' + window.location.host
-                            + window.location.pathname
-                            +"#/room/"+params.roomId;
-                        window.location.reload();
-                    } else {
-                        window.location.href =
-                        window.location.protocol
-                        + '//' + window.location.host
-                        + window.location.pathname
-                        +"#/";
-                        window.location.reload();
-                    }
-                }
-                // if (params.roomId && params.roomId.endsWith("bakino.fr")) {
-                //     window.indexedDB.deleteDatabase("matrix-react-sdk");
-                //     window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
-                //     window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
-                //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
-                //     localStorage.setItem("mx_is_url", data.identityServerUrl);
-                //     localStorage.setItem("mx_has_access_token", "true");
-                //     localStorage.setItem("mx_access_token", data.accessToken);
-                //     localStorage.setItem("mx_user_id", data.userId);
-                //     localStorage.setItem("mx_is_guest", "false");
-                //     localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-                //     window.location.href =
-                //         window.location.protocol
-                //         + '//' + window.location.host
-                //         + window.location.pathname
-                //         +"#/room/"+params.roomId;
-                //     window.location.reload();
-                // } else {
-                //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
-                //     localStorage.setItem("mx_is_url", data.identityServerUrl);
-                //     localStorage.setItem("mx_has_access_token", "true");
-                //     localStorage.setItem("mx_access_token", data.accessToken);
-                //     localStorage.setItem("mx_user_id", data.userId);
-                //     localStorage.setItem("mx_is_guest", "false");
-                //     window.location.href =
-                //         window.location.protocol
-                //         + '//' + window.location.host
-                //         + window.location.pathname
-                //         +"#/";
-                //     window.location.reload();
-                // }
-                return;
-            }, (error) => {});
-            return;
-        } else if (screen === 'register') {
+        // if (screen === 'bamz') {
+        //     logger.log("BAMZ redirection");
+        //     const hsUrl = this.props.config.default_server_config["m.homeserver"].base_url;
+        //     const isUrl = this.props.config.default_server_config["m.identity_server"].base_url;
+        //     const loginLogic = new Login(hsUrl, isUrl, "/", {
+        //         defaultDeviceDisplayName: "BAMZ Matrix",
+        //     });
+        //     const username=params.user;
+        //     const phoneCountry = null;
+        //     const phoneNumber=null;
+        //     const password = params.appName.toUpperCase()+params.user.split('-')[0];
+        //     loginLogic.loginViaPassword(
+        //         username, phoneCountry, phoneNumber, password,
+        //     ).then((data) => {
+        //         const previous = localStorage.getItem("mx_bamz_user");
+        //         console.log("BAMZ previous: "+JSON.stringify(previous));
+        //         console.log("BAMZ params.user: "+params.user);
+        //         logger.log("BAMZ previous: "+JSON.stringify(previous));
+        //         logger.log("BAMZ params.user: "+params.user);
+        //         if (previous && previous === params.user) {
+        //             console.log("BAMZ same session");
+        //             logger.log("BAMZ same session");
+        //             localStorage.setItem("mx_hs_url", data.homeserverUrl);
+        //             localStorage.setItem("mx_is_url", data.identityServerUrl);
+        //             localStorage.setItem("mx_has_access_token", "true");
+        //             localStorage.setItem("mx_access_token", data.accessToken);
+        //             localStorage.setItem("mx_user_id", data.userId);
+        //             localStorage.setItem("mx_is_guest", "false");
+        //             window.location.href =
+        //                 window.location.protocol
+        //                 + '//' + window.location.host
+        //                 + window.location.pathname
+        //                 +"#/";
+        //             window.location.reload();
+        //         } else {
+        //             console.log("BAMZ new session");
+        //             logger.log("BAMZ new session");
+        //             localStorage.setItem("mx_bamz_user", params.user);
+        //             window.indexedDB.deleteDatabase("matrix-react-sdk");
+        //             window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
+        //             window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
+        //             localStorage.setItem("mx_hs_url", data.homeserverUrl);
+        //             localStorage.setItem("mx_is_url", data.identityServerUrl);
+        //             localStorage.setItem("mx_has_access_token", "true");
+        //             localStorage.setItem("mx_access_token", data.accessToken);
+        //             localStorage.setItem("mx_user_id", data.userId);
+        //             localStorage.setItem("mx_is_guest", "false");
+        //             if (params.roomId) {
+        //                 localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
+        //                 window.location.href =
+        //                     window.location.protocol
+        //                     + '//' + window.location.host
+        //                     + window.location.pathname
+        //                     +"#/room/"+params.roomId;
+        //                 window.location.reload();
+        //             } else {
+        //                 window.location.href =
+        //                 window.location.protocol
+        //                 + '//' + window.location.host
+        //                 + window.location.pathname
+        //                 +"#/";
+        //                 window.location.reload();
+        //             }
+        //         }
+        //         // if (params.roomId && params.roomId.endsWith("bakino.fr")) {
+        //         //     window.indexedDB.deleteDatabase("matrix-react-sdk");
+        //         //     window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
+        //         //     window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
+        //         //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
+        //         //     localStorage.setItem("mx_is_url", data.identityServerUrl);
+        //         //     localStorage.setItem("mx_has_access_token", "true");
+        //         //     localStorage.setItem("mx_access_token", data.accessToken);
+        //         //     localStorage.setItem("mx_user_id", data.userId);
+        //         //     localStorage.setItem("mx_is_guest", "false");
+        //         //     localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
+        //         //     window.location.href =
+        //         //         window.location.protocol
+        //         //         + '//' + window.location.host
+        //         //         + window.location.pathname
+        //         //         +"#/room/"+params.roomId;
+        //         //     window.location.reload();
+        //         // } else {
+        //         //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
+        //         //     localStorage.setItem("mx_is_url", data.identityServerUrl);
+        //         //     localStorage.setItem("mx_has_access_token", "true");
+        //         //     localStorage.setItem("mx_access_token", data.accessToken);
+        //         //     localStorage.setItem("mx_user_id", data.userId);
+        //         //     localStorage.setItem("mx_is_guest", "false");
+        //         //     window.location.href =
+        //         //         window.location.protocol
+        //         //         + '//' + window.location.host
+        //         //         + window.location.pathname
+        //         //         +"#/";
+        //         //     window.location.reload();
+        //         // }
+        //         return;
+        //     }, (error) => {});
+        //     return;
+        // } else 
+        if (screen === 'register') {
             dis.dispatch({
                 action: 'start_registration',
                 params: params,
