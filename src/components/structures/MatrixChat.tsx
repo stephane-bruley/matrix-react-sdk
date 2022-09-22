@@ -310,6 +310,14 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         // we don't do it as react state as i'm scared about triggering needless react refreshes.
         this.subTitleStatus = '';
 
+
+        console.log("BAMZZZ")
+        logger.log("BAMZZZ")
+        console.log(this)
+        console.log(this.props)
+        logger.log(this)
+        logger.log(this.props)
+
         // the first thing to do is to try the token params in the query-string
         // if the session isn't soft logged out (ie: is a clean session being logged in)
         if (!Lifecycle.isSoftLogout()) {
