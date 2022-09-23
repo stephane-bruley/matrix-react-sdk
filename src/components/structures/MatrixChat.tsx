@@ -334,18 +334,16 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             ).then(async (data) => {
                 const previous = localStorage.getItem("mx_bamz_user");
                 if (previous && previous === result.params.user) {
-                    console.log("BAMZ same session");
-                    logger.log("BAMZ same session");
-                    // this.showScreen("home");
                     await Lifecycle.getStoredSessionVars();
                     await this.loadSession();
                     const prevRoom = localStorage.getItem("mx_last_room_id");
-                    this.showScreen(`room/`+prevRoom, {});
-                    //this.viewLastRoom();
+                    if (prevRoom) {
+                        this.showScreen(`room/`+prevRoom, {});
+                    } else {
+                        this.showScreen("home");
+                    }
                 } else {
-                    console.log("BAMZ new session");
                     localStorage.removeItem("mx_bamz_user");
-                    // LOGOUT previous user
                     if (window.localStorage) {
                         window.localStorage.clear();
                         AbstractLocalStorageSettingsHandler.clear();
@@ -355,7 +353,6 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                             logger.error("idbDelete failed for account:mx_access_token", e);
                         }
                     }
-                    //LOGIN new user
                     const credentials={
                         userId: data.userId,
                         deviceId: data.deviceId,
@@ -366,17 +363,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                     };
                     await Lifecycle.setLoggedIn(credentials);
                     localStorage.setItem("mx_bamz_user", result.params.user);
-
                     if (result.params.defaultRoom) {
-                        //localStorage.setItem("mx_last_room_id", result.params.defaultRoom); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
                         this.showScreen(`room/`+result.params.defaultRoom, {});
-                        //this.viewLastRoom();
-                        // window.location.href =
-                        //     window.location.protocol
-                        //     + '//' + window.location.host
-                        //     + window.location.pathname
-                        //     +"#/room/"+result.params.defaultRoom;
-                        // window.location.reload();
                     } else {
                         this.showScreen("home");
                     }
