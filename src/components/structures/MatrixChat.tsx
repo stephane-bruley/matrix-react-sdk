@@ -337,10 +337,10 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                     console.log("BAMZ same session");
                     logger.log("BAMZ same session");
                     // this.showScreen("home");
-                    //await Lifecycle.getStoredSessionVars();
+                    await Lifecycle.getStoredSessionVars();
                     await this.loadSession();
                     const prevRoom = localStorage.getItem("mx_last_room_id");
-                    this.showScreen(`room/`+prevRoom);
+                    this.showScreen(`room/`+prevRoom, {});
                     //this.viewLastRoom();
                 } else {
                     console.log("BAMZ new session");
@@ -369,7 +369,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
 
                     if (result.params.defaultRoom) {
                         //localStorage.setItem("mx_last_room_id", result.params.defaultRoom); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-                        this.showScreen(`room/`+result.params.defaultRoom);
+                        this.showScreen(`room/`+result.params.defaultRoom, {});
                         //this.viewLastRoom();
                         // window.location.href =
                         //     window.location.protocol
