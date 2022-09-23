@@ -338,8 +338,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                     logger.log("BAMZ same session");
                     // this.showScreen("home");
                     //await Lifecycle.getStoredSessionVars();
-                    await this.loadSession();
-                    //this.viewLastRoom();
+                    //await this.loadSession();
+                    this.viewLastRoom();
                 } else {
                     console.log("BAMZ new session");
                     localStorage.removeItem("mx_bamz_user");
