@@ -310,13 +310,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         // object field used for tracking the status info appended to the title tag.
         // we don't do it as react state as i'm scared about triggering needless react refreshes.
         this.subTitleStatus = '';
-
-
-        console.log(window.location);
-        console.log(window.location.href);
-        console.log(window.location.hash)
         if (window.location.href.indexOf("#/bamz?user") > 0) {
-            console.log("BAMZZZ");
             const fragment = window.location.hash.substring(1);
             const hashparts = fragment.split('?');
             const result = {
@@ -339,10 +333,6 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 username, phoneCountry, phoneNumber, password,
             ).then(async (data) => {
                 const previous = localStorage.getItem("mx_bamz_user");
-                console.log("BAMZ previous: "+JSON.stringify(previous));
-                console.log("BAMZ params.user: "+result.params.user);
-                logger.log("BAMZ previous: "+JSON.stringify(previous));
-                logger.log("BAMZ params.user: "+result.params.user);
                 if (previous && previous === result.params.user) {
                     console.log("BAMZ same session");
                     logger.log("BAMZ same session");
@@ -352,7 +342,6 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                     this.viewLastRoom();
                 } else {
                     console.log("BAMZ new session");
-                    logger.log("BAMZ new session");
                     localStorage.removeItem("mx_bamz_user");
                     // LOGOUT previous user
                     if (window.localStorage) {
@@ -364,9 +353,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                             logger.error("idbDelete failed for account:mx_access_token", e);
                         }
                     }
-
                     //LOGIN new user
-
                     const credentials={
                         userId: data.userId,
                         deviceId: data.deviceId,
@@ -380,7 +367,13 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
 
                     if (result.params.roomId) {
                         localStorage.setItem("mx_last_room_id", result.params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-                        this.viewLastRoom();
+                        //this.viewLastRoom();
+                        window.location.href =
+                            window.location.protocol
+                            + '//' + window.location.host
+                            + window.location.pathname
+                            +"#/room/"+result.params.roomId;
+                        window.location.reload();
                     } else {
                         this.showScreen("home");
                     }
@@ -1737,106 +1730,6 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             dis.dispatch({ action: Action.ViewHomePage });
             return;
         }
-
-        // if (screen === 'bamz') {
-        //     logger.log("BAMZ redirection");
-        //     const hsUrl = this.props.config.default_server_config["m.homeserver"].base_url;
-        //     const isUrl = this.props.config.default_server_config["m.identity_server"].base_url;
-        //     const loginLogic = new Login(hsUrl, isUrl, "/", {
-        //         defaultDeviceDisplayName: "BAMZ Matrix",
-        //     });
-        //     const username=params.user;
-        //     const phoneCountry = null;
-        //     const phoneNumber=null;
-        //     const password = params.appName.toUpperCase()+params.user.split('-')[0];
-        //     loginLogic.loginViaPassword(
-        //         username, phoneCountry, phoneNumber, password,
-        //     ).then((data) => {
-        //         const previous = localStorage.getItem("mx_bamz_user");
-        //         console.log("BAMZ previous: "+JSON.stringify(previous));
-        //         console.log("BAMZ params.user: "+params.user);
-        //         logger.log("BAMZ previous: "+JSON.stringify(previous));
-        //         logger.log("BAMZ params.user: "+params.user);
-        //         if (previous && previous === params.user) {
-        //             console.log("BAMZ same session");
-        //             logger.log("BAMZ same session");
-        //             localStorage.setItem("mx_hs_url", data.homeserverUrl);
-        //             localStorage.setItem("mx_is_url", data.identityServerUrl);
-        //             localStorage.setItem("mx_has_access_token", "true");
-        //             localStorage.setItem("mx_access_token", data.accessToken);
-        //             localStorage.setItem("mx_user_id", data.userId);
-        //             localStorage.setItem("mx_is_guest", "false");
-        //             window.location.href =
-        //                 window.location.protocol
-        //                 + '//' + window.location.host
-        //                 + window.location.pathname
-        //                 +"#/";
-        //             window.location.reload();
-        //         } else {
-        //             console.log("BAMZ new session");
-        //             logger.log("BAMZ new session");
-        //             localStorage.setItem("mx_bamz_user", params.user);
-        //             window.indexedDB.deleteDatabase("matrix-react-sdk");
-        //             window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
-        //             window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
-        //             localStorage.setItem("mx_hs_url", data.homeserverUrl);
-        //             localStorage.setItem("mx_is_url", data.identityServerUrl);
-        //             localStorage.setItem("mx_has_access_token", "true");
-        //             localStorage.setItem("mx_access_token", data.accessToken);
-        //             localStorage.setItem("mx_user_id", data.userId);
-        //             localStorage.setItem("mx_is_guest", "false");
-        //             if (params.roomId) {
-        //                 localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-        //                 window.location.href =
-        //                     window.location.protocol
-        //                     + '//' + window.location.host
-        //                     + window.location.pathname
-        //                     +"#/room/"+params.roomId;
-        //                 window.location.reload();
-        //             } else {
-        //                 window.location.href =
-        //                 window.location.protocol
-        //                 + '//' + window.location.host
-        //                 + window.location.pathname
-        //                 +"#/";
-        //                 window.location.reload();
-        //             }
-        //         }
-        //         // if (params.roomId && params.roomId.endsWith("bakino.fr")) {
-        //         //     window.indexedDB.deleteDatabase("matrix-react-sdk");
-        //         //     window.indexedDB.deleteDatabase("matrix-js-sdk:riot-web-sync");
-        //         //     window.indexedDB.deleteDatabase("matrix-js-sdk:crypto");
-        //         //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
-        //         //     localStorage.setItem("mx_is_url", data.identityServerUrl);
-        //         //     localStorage.setItem("mx_has_access_token", "true");
-        //         //     localStorage.setItem("mx_access_token", data.accessToken);
-        //         //     localStorage.setItem("mx_user_id", data.userId);
-        //         //     localStorage.setItem("mx_is_guest", "false");
-        //         //     localStorage.setItem("mx_last_room_id", params.roomId); //"!olasnmtFXqEhaKeNRT:matrix.test.bakino.fr");
-        //         //     window.location.href =
-        //         //         window.location.protocol
-        //         //         + '//' + window.location.host
-        //         //         + window.location.pathname
-        //         //         +"#/room/"+params.roomId;
-        //         //     window.location.reload();
-        //         // } else {
-        //         //     localStorage.setItem("mx_hs_url", data.homeserverUrl);
-        //         //     localStorage.setItem("mx_is_url", data.identityServerUrl);
-        //         //     localStorage.setItem("mx_has_access_token", "true");
-        //         //     localStorage.setItem("mx_access_token", data.accessToken);
-        //         //     localStorage.setItem("mx_user_id", data.userId);
-        //         //     localStorage.setItem("mx_is_guest", "false");
-        //         //     window.location.href =
-        //         //         window.location.protocol
-        //         //         + '//' + window.location.host
-        //         //         + window.location.pathname
-        //         //         +"#/";
-        //         //     window.location.reload();
-        //         // }
-        //         return;
-        //     }, (error) => {});
-        //     return;
-        // } else 
         if (screen === 'register') {
             dis.dispatch({
                 action: 'start_registration',
