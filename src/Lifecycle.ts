@@ -260,9 +260,9 @@ export function handleInvalidStoreError(e: InvalidStoreError): Promise<void> {
             const lazyLoadEnabled = e.value;
             if (lazyLoadEnabled) {
                 return new Promise((resolve) => {
-                    Modal.createDialog(LazyLoadingResyncDialog, {
-                        onFinished: resolve,
-                    });
+                    // Modal.createDialog(LazyLoadingResyncDialog, {
+                    //     onFinished: resolve,
+                    // });
                 });
             } else {
                 // show warning about simultaneous use
@@ -270,10 +270,10 @@ export function handleInvalidStoreError(e: InvalidStoreError): Promise<void> {
                 // as disabling LL when previously enabled
                 // is a strong indicator of this (/develop & /app)
                 return new Promise((resolve) => {
-                    Modal.createDialog(LazyLoadingDisabledDialog, {
-                        onFinished: resolve,
-                        host: window.location.host,
-                    });
+                    // Modal.createDialog(LazyLoadingDisabledDialog, {
+                    //     onFinished: resolve,
+                    //     host: window.location.host,
+                    // });
                 });
             }
         }).then(() => {
